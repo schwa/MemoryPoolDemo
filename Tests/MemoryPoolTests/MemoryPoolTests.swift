@@ -1,5 +1,5 @@
 import XCTest
-@testable import MemoryPoolDemo
+@testable import MemoryPool
 
 final class MemoryPoolDemoTests: XCTestCase {
     func testExample() throws {

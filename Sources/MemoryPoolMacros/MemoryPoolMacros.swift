@@ -45,7 +45,11 @@ extension MemoryPooledMacro: MemberAttributeMacro {
     public static func expansion(of node: AttributeSyntax, attachedTo declaration: some DeclGroupSyntax, providingAttributesFor member: some DeclSyntaxProtocol, in context: some MacroExpansionContext) throws -> [AttributeSyntax] {
         logger.debug("\(type(of:self), privacy: .public), MemberAttributeMacro, \(#function, privacy: .public)")
         if let variable = member.as(VariableDeclSyntax.self) {
-            print(declaration.ancestorTypes, declaration.syntaxNodeType, declaration.simpleName)
+            print("#############################################################################################################")
+            print(declaration.route)
+            print(member.route)
+            print(declaration)
+            print("###########")
             return ["@MemoryPooled"]
         }
         else {
@@ -117,5 +121,18 @@ extension SyntaxProtocol {
         else {
             return nil
         }
+    }
+
+    private var routeItem: String {
+        if let simpleName {
+            return "\(syntaxNodeType)(\"\(simpleName)\")"
+        }
+        else {
+            return "\(syntaxNodeType)()"
+        }
+    }
+
+    var route: String {
+        return (ancestors.map { $0.routeItem } + [routeItem]).joined(separator: "/")
     }
 }

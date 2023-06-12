@@ -1,12 +1,46 @@
+import SwiftSyntaxMacros
+import SwiftSyntaxMacrosTestSupport
 import XCTest
-@testable import MemoryPool
+import MemoryPool
+import MemoryPoolMacros
+import SwiftSyntax
+import SwiftBasicFormat
+import SwiftDiagnostics
+import SwiftParser
+import SwiftSyntax
+import SwiftSyntaxMacros
 
-final class MemoryPoolDemoTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
 
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
+final class BufferedMacroTests: XCTestCase {
+
+    let macros: [String: Macro.Type] = [
+        "MemoryPooled": MemoryPooledMacro.self,
+    ]
+
+    func testMacro() {
+        let source = """
+            @MemoryPooled
+            struct Foo {
+                var x: Int?
+            }
+            """
+        let expectedSource = """
+            
+            struct Foo {
+                var x: Int? {
+                    get {
+                        fatalError()
+                    }
+                    set {
+                        fatalError()
+                    }
+                struct Storage {
+                    var x: Int?
+                }
+                var accessor: MemoryPoolAccessor<Self>
+            }
+            """
+        assertMacroExpansion(source, expandedSource: expectedSource, macros: macros)
     }
 }
+

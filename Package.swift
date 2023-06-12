@@ -28,7 +28,8 @@ let package = Package(
             name: "MemoryPoolTests",
             dependencies: [
                 "MemoryPool",
-                "MemoryPoolMacros"
+                "MemoryPoolMacros",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),
         .executableTarget(

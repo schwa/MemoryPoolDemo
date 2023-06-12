@@ -1,5 +1,5 @@
-public struct MemoryPool <Element> {
-    public typealias Elements = [Element?]
+public class MemoryPool <Element> where Element: MemoryPooledProtocol {
+    public typealias Elements = [Element.Storage?]
     public typealias Index = Elements.Index
 
     var elements: Elements
@@ -10,7 +10,7 @@ public struct MemoryPool <Element> {
         freeList = Set(0..<capacity)
     }
 
-    public mutating func allocate() -> Index {
+    internal func allocate() -> Index {
         if let index = freeList.popFirst() {
             return index
         }
@@ -32,14 +32,24 @@ public struct MemoryPool <Element> {
         }
     }
 
-    public mutating func free(index: Index) {
+    internal func free(index: Index) {
         assert(!freeList.contains(index))
         freeList.insert(index)
     }
 }
 
-public protocol MemoryPooled {
+public protocol MemoryPooledProtocol {
     associatedtype Storage
-    var index: MemoryPool<Storage>.Index { get set }
+    var accessor: MemoryPoolAccessor<Self> { get set }
 }
 
+public struct MemoryPoolAccessor <Element> where Element: MemoryPooledProtocol {
+    public var pool: MemoryPool<Element>
+    public var index: MemoryPool<Element>.Index
+}
+
+@attached(accessor)
+@attached(conformance)
+@attached(member, names: named(accessor), named(Storage))
+@attached(memberAttribute)
+public macro MemoryPooled() = #externalMacro(module: "MemoryPoolMacros", type: "MemoryPooledMacro")
